@@ -13,10 +13,6 @@ import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Predicate;
 
-/**
- * Сервис для заданий по лямбда-функциям и Stream API.
- * Все вычисления выполняются через Predicate, Function/Comparator и stream/lambda-операции.
- */
 @Service
 public class LambdaVikingService {
 
@@ -71,10 +67,7 @@ public class LambdaVikingService {
                 .toList();
     }
 
-    /**
-     * В модели нет отдельного цвета бороды, поэтому "рыжебородые" трактуются как:
-     * рыжие волосы + борода не CLEAN_SHAVEN.
-     */
+
     public List<Viking> findRedBeardedSortedByAge() {
         return vikingService.findAll().stream()
                 .filter(viking -> viking.hairColor() == HairColor.Red)
