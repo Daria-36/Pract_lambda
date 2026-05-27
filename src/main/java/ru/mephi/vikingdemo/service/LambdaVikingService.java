@@ -14,7 +14,6 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-@Service
 public class LambdaVikingService {
 
     private final VikingService vikingService;
