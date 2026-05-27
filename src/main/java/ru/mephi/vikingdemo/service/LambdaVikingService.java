@@ -58,6 +58,10 @@ public class LambdaVikingService {
         return countWithAxeAmount(2);
     }
 
+    public long countWithOneOrTwoAxes() {
+    return countWithOneAxe() + countWithTwoAxes();
+}
+    
     public Optional<Viking> findRandomVikingTallerThan180() {
         List<Viking> tallVikings = allVikings()
                 .filter(viking -> viking.heightCm() > 180)
