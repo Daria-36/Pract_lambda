@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 @Service
 public class LambdaVikingService {
@@ -31,15 +32,23 @@ public class LambdaVikingService {
     }
 
     public long countAgeInRange(int minAgeInclusive, int maxAgeInclusive) {
-        return countByCondition(viking -> viking.age() >= minAgeInclusive && viking.age() <= maxAgeInclusive);
+        return countByCondition(viking ->
+                viking.age() >= minAgeInclusive && viking.age() <= maxAgeInclusive
+        );
     }
 
     public long countAgeOutsideRange(int minAgeInclusive, int maxAgeInclusive) {
-        return countByCondition(viking -> viking.age() < minAgeInclusive || viking.age() > maxAgeInclusive);
+        return countByCondition(viking ->
+                viking.age() < minAgeInclusive || viking.age() > maxAgeInclusive
+        );
     }
 
     public long countByBeardStyleAndHairColor(BeardStyle beardStyle, HairColor hairColor) {
-        return countByCondition(viking -> viking.beardStyle() == beardStyle && viking.hairColor() == hairColor);
+        return countByCondition(viking ->
+                hasBeard(viking)
+                        && viking.beardStyle() == beardStyle
+                        && viking.hairColor() == hairColor
+        );
     }
 
     public long countWithOneAxe() {
@@ -51,7 +60,7 @@ public class LambdaVikingService {
     }
 
     public Optional<Viking> findRandomVikingTallerThan180() {
-        List<Viking> tallVikings = vikingService.findAll().stream()
+        List<Viking> tallVikings = allVikings()
                 .filter(viking -> viking.heightCm() > 180)
                 .toList();
 
@@ -61,17 +70,16 @@ public class LambdaVikingService {
     }
 
     public List<Viking> findAllWithLegendaryEquipment() {
-        return vikingService.findAll().stream()
+        return allVikings()
                 .filter(viking -> viking.equipment().stream()
                         .anyMatch(item -> "Legendary".equalsIgnoreCase(item.quality())))
                 .toList();
     }
 
-
     public List<Viking> findRedBeardedSortedByAge() {
-        return vikingService.findAll().stream()
+        return allVikings()
+                .filter(this::hasBeard)
                 .filter(viking -> viking.hairColor() == HairColor.Red)
-                .filter(viking -> viking.beardStyle() != BeardStyle.CLEAN_SHAVEN)
                 .sorted(Comparator.comparingInt(Viking::age))
                 .toList();
     }
@@ -88,15 +96,26 @@ public class LambdaVikingService {
     }
 
     private long countByCondition(Predicate<Viking> condition) {
-        return vikingService.findAll().stream()
+        return allVikings()
                 .filter(condition)
                 .count();
     }
 
     private long countWithAxeAmount(long axeAmount) {
-        return countByCondition(viking -> viking.equipment().stream()
-                .map(EquipmentItem::name)
-                .filter(name -> "Axe".equalsIgnoreCase(name))
-                .count() == axeAmount);
+        return countByCondition(viking ->
+                viking.equipment().stream()
+                        .map(EquipmentItem::name)
+                        .filter(name -> "Axe".equalsIgnoreCase(name))
+                        .count() == axeAmount
+        );
+    }
+
+    private Stream<Viking> allVikings() {
+        return Arrays.stream(vikingService.findAllAsArray());
+    }
+
+    private boolean hasBeard(Viking viking) {
+        return viking.beardStyle() != null
+                && viking.beardStyle() != BeardStyle.CLEAN_SHAVEN;
     }
 }
